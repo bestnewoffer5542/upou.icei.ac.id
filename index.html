@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Submission</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f5a623, #f7d47c);
+        }
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 320px;
+        }
+        .hidden {
+            display: none;
+        }
+        .btn {
+            background: linear-gradient(90deg, #ff6f61, #de64a4);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .btn:hover {
+            background: linear-gradient(90deg, #de64a4, #ff6f61);
+            transform: scale(1.05);
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        input[type="email"]:focus {
+            border-color: #ff6f61;
+            outline: none;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            margin-top: 20px;
+            height: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #ff6f61, #de64a4);
+            border-radius: 8px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: width 0.5s ease, background 0.5s ease;
+        }
+        .progress-bar-text {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            text-align: center;
+            line-height: 12px;
+            font-size: 12px;
+            color: #333;
+            z-index: 1;
+        }
+        .progress-message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        .loading-animation {
+            margin-top: 20px;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 5px solid #ff6f61;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .console-log {
+            margin-top: 10px;
+            text-align: left;
+            font-family: monospace;
+            background: #333;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 8px;
+            height: 120px;
+            overflow: auto;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+        .console-log span {
+            display: block;
+        }
+        .plan-selection {
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .plan-selection.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .plan-option {
+            margin: 10px 0;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid transparent;
+        }
+        .plan-option:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+        #planPro {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-color: #f5c6cb;
+        }
+        #planPlus {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-color: #c3e6cb;
+        }
+        #planCookie {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            border-color: #bee5eb;
+        }
+        #planPro:hover {
+            background: linear-gradient(135deg, #f5c6cb, #f8d7da);
+        }
+        #planPlus:hover {
+            background: linear-gradient(135deg, #c3e6cb, #d4edda);
+        }
+        #planCookie:hover {
+            background: linear-gradient(135deg, #bee5eb, #d1ecf1);
+        }
+        #planPro input[type="radio"],
+        #planPlus input[type="radio"],
+        #planCookie input[type="radio"] {
+            margin-right: 12px;
+        }
+        #successSection {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Email Submission Box -->
+        <div id="emailSection">
+            <h2>Submit Your Email</h2>
+            <form id="emailForm">
+                <input type="email" id="email" placeholder="Enter your email" required>
+                <button type="submit" class="btn">Submit</button>
+            </form>
+        </div>
+
+        <!-- Progress Simulation -->
+        <div id="progressSection" class="hidden">
+            <h2>Connecting to Server...</h2>
+            <div class="loading-animation" id="loadingAnimation"></div>
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+                <div class="progress-bar-text" id="progressBarText">0%</div>
+            </div>
+            <div class="progress-message" id="progressMessage"></div>
+            <div class="console-log" id="consoleLog"></div>
+            <button class="btn hidden" id="cancelButton">Cancel</button>
+        </div>
+
+        <!-- Plan Selection -->
+        <div id="planSelection" class="hidden">
+            <h2>Select Your Plan</h2>
+            <div class="plan-selection" id="planSelectionContainer">
+                <div class="plan-option" id="planPro">
+                    <input type="radio" id="planProRadio" name="plan" value="Pro">
+                    <label for="planProRadio">Plan Pro</label>
+                </div>
+                <div class="plan-option" id="planPlus">
+                    <input type="radio" id="planPlusRadio" name="plan" value="Plus">
+                    <label for="planPlusRadio">Plan Plus</label>
+                </div>
+                <div class="plan-option" id="planCookie">
+                    <input type="radio" id="planCookieRadio" name="plan" value="Cookie">
+                    <label for="planCookieRadio">Plan Cookie</label>
+                </div>
+                <button class="btn" id="selectPlanButton">Select Plan</button>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successSection" class="hidden" aria-live="polite">
+            <h2>Almost Done!</h2>
+            <p id="confirmationMessage"></p>
+            <button class="btn" id="verifyButton">Verify Now</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('emailForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent actual form submission
+
+            // Hide email section and show progress section
+            document.getElementById('emailSection').classList.add('hidden');
+            document.getElementById('progressSection').classList.remove('hidden');
+
+            // Fake server progress messages and loading animation
+            const messages = [
+                "Initializing connection...",
+                "Connecting to servers...",
+                "Establishing VPN...",
+                "Searching for server...",
+                "Bypassing security protocols...",
+                "Gathering access logs...",
+                "Completing setup..."
+            ];
+
+            let messageIndex = 0;
+            let progressWidth = 0;
+            const progressBarFill = document.getElementById('progressBarFill');
+            const progressMessage = document.getElementById('progressMessage');
+            const progressBarText = document.getElementById('progressBarText');
+            const loadingAnimation = document.getElementById('loadingAnimation');
+            const consoleLog = document.getElementById('consoleLog');
+            const cancelButton = document.getElementById('cancelButton');
+
+            // Clear old console log
+            consoleLog.innerHTML = '';
+
+            // Simulate console log updates
+            const consoleMessages = [
+                "[INFO] Initiating connection...",
+                "[INFO] Connection established.",
+                "[INFO] Fetching server data...",
+                "[WARN] Latency detected.",
+                "[INFO] Finalizing connection...",
+                "[SUCCESS] Connection successful!",
+                "[INFO] Validating user credentials...",
+                "[INFO] Synchronizing data...",
+                "[ERROR] Minor issue detected, retrying...",
+                "[INFO] Data synchronized successfully.",
+                "[INFO] Generating final report...",
+                "[SUCCESS] Report generation complete."
+            ];
+
+            let consoleMessageIndex = 0;
+            function updateConsoleLog() {
+                if (consoleMessageIndex < consoleMessages.length) {
+                    const newLog = document.createElement('span');
+                    newLog.textContent = consoleMessages[consoleMessageIndex];
+                    consoleLog.appendChild(newLog);
+                    consoleMessageIndex++;
+                }
+            }
+
+            const progressInterval = setInterval(() => {
+                if (messageIndex < messages.length) {
+                    progressMessage.textContent = messages[messageIndex];
+                    updateConsoleLog(); // Update console log
+                    progressWidth += Math.random() * 20; // Randomize progress increment
+                    progressWidth = Math.min(progressWidth, 100); // Cap progress at 100%
+                    progressBarFill.style.width = progressWidth + '%';
+                    progressBarText.textContent = Math.round(progressWidth) + '%'; // Update percentage text
+
+                    // Change progress bar color based on progress
+                    if (progressWidth < 30) {
+                        progressBarFill.style.background = 'linear-gradient(90deg, #ff6f61, #de64a4)';
+                    } else if (progressWidth < 60) {
+                        progressBarFill.style.background = 'linear-gradient(90deg, #f5d142, #f6f56b)';
+                    } else {
+                        progressBarFill.style.background = 'linear-gradient(90deg, #4b77be, #6dd5fa)';
+                    }
+
+                    messageIndex++;
+                } else {
+                    clearInterval(progressInterval);
+                    loadingAnimation.style.display = 'none';
+                    document.getElementById('progressSection').classList.add('hidden');
+                    document.getElementById('planSelection').classList.remove('hidden');
+                    document.getElementById('planSelectionContainer').classList.add('show');
+                }
+            }, 2500); // Show each message for 2.5 seconds
+
+            // Optional: Cancel button logic
+            cancelButton.addEventListener('click', function() {
+                clearInterval(progressInterval);
+                loadingAnimation.style.display = 'none';
+                progressMessage.textContent = "Process canceled.";
+            });
+        });
+
+        document.getElementById('selectPlanButton').addEventListener('click', function() {
+            const selectedPlan = document.querySelector('input[name="plan"]:checked');
+            if (selectedPlan) {
+                const planText = selectedPlan.value;
+                document.getElementById('planSelection').classList.add('hidden');
+                document.getElementById('progressSection').classList.remove('hidden');
+
+                // Fake additional progress simulation
+                const additionalMessages = [
+                    "Processing your plan selection...",
+                    "Updating subscription details...",
+                    "Synchronizing with account...",
+                    "Finalizing your plan..."
+                ];
+
+                let additionalMessageIndex = 0;
+                let additionalProgressWidth = 0;
+                const additionalProgressBarFill = document.getElementById('progressBarFill');
+                const additionalProgressMessage = document.getElementById('progressMessage');
+                const additionalProgressBarText = document.getElementById('progressBarText');
+                
+                const additionalProgressInterval = setInterval(() => {
+                    if (additionalMessageIndex < additionalMessages.length) {
+                        additionalProgressMessage.textContent = additionalMessages[additionalMessageIndex];
+                        additionalProgressWidth += Math.random() * 25; // Randomize progress increment
+                        additionalProgressWidth = Math.min(additionalProgressWidth, 100); // Cap progress at 100%
+                        additionalProgressBarFill.style.width = additionalProgressWidth + '%';
+                        additionalProgressBarText.textContent = Math.round(additionalProgressWidth) + '%'; // Update percentage text
+
+                        // Change progress bar color based on progress
+                        if (additionalProgressWidth < 30) {
+                            additionalProgressBarFill.style.background = 'linear-gradient(90deg, #ff6f61, #de64a4)';
+                        } else if (additionalProgressWidth < 60) {
+                            additionalProgressBarFill.style.background = 'linear-gradient(90deg, #f5d142, #f6f56b)';
+                        } else {
+                            additionalProgressBarFill.style.background = 'linear-gradient(90deg, #4b77be, #6dd5fa)';
+                        }
+
+                        additionalMessageIndex++;
+                    } else {
+                        clearInterval(additionalProgressInterval);
+                        document.getElementById('progressSection').classList.add('hidden');
+                        document.getElementById('successSection').classList.remove('hidden');
+                    }
+                }, 2000); // Show each message for 2 seconds
+            } else {
+                alert('Please select a plan.');
+            }
+        });
+
+        document.getElementById('verifyButton').addEventListener('click', function() {
+            alert('Verification complete! Thank you.');
+        });
+    </script>
+</body>
+</html>
